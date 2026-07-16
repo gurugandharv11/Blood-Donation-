@@ -5,5 +5,4 @@ target
 .vscode
 *.iml
 *.log
-.DS_Store
 README.md

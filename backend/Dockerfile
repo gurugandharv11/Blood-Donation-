@@ -1,20 +1,13 @@
-# ===== Build Stage =====
+# ---------- Build Stage ----------
 FROM maven:3.9.9-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
-COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
+COPY . .
 
-RUN chmod +x mvnw
-RUN ./mvnw dependency:go-offline
+RUN mvn clean package -DskipTests
 
-COPY src src
-
-RUN ./mvnw clean package -DskipTests
-
-# ===== Runtime Stage =====
+# ---------- Runtime Stage ----------
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
@@ -23,4 +16,4 @@ COPY --from=builder /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["java","-Dserver.port=${PORT}","-jar","app.jar"]

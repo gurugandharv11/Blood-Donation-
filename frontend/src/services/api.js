@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+console.log("API BASE URL =", API_BASE_URL);
 
 // ============ TOKEN MANAGEMENT ============
 export const Auth = {
@@ -67,6 +68,7 @@ export const Auth = {
 // ============ AXIOS INSTANCE ============
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -138,26 +140,53 @@ export const getProfileImageUrl = (imageUrl) => {
 
 // --- Donors ---
 export const donorApi = {
-  getAll:           (page=0, size=10, sortBy='id', sortDir='asc') =>
-                      api.get(`/donors?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`),
-  getById:          (id)             => api.get(`/donors/${id}`),
-  getByUserId:      (userId)         => api.get(`/donors/user/${userId}`),
-  search:           (params)         => {
+  getAll: (page = 0, size = 10, sortBy = 'id', sortDir = 'asc') =>
+    api.get(`/donors?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`),
+
+  getById: (id) => api.get(`/donors/${id}`),
+
+  getByUserId: (userId) => api.get(`/donors/user/${userId}`),
+
+  search: async (params) => {
     const q = new URLSearchParams();
-    if (params.bloodGroup) q.set('bloodGroup', params.bloodGroup);
-    if (params.city)       q.set('city', params.city);
-    if (params.available !== undefined && params.available !== null) q.set('available', params.available);
-    q.set('page', params.page || 0);
-    q.set('size', params.size || 10);
-    return api.get(`/donors/search?${q.toString()}`);
+
+    if (params.bloodGroup) q.set("bloodGroup", params.bloodGroup);
+    if (params.city) q.set("city", params.city);
+    if (params.available !== undefined && params.available !== null)
+      q.set("available", params.available);
+
+    q.set("page", params.page || 0);
+    q.set("size", params.size || 10);
+
+    const url = `/donors/search?${q.toString()}`;
+
+    console.log("API BASE URL:", API_BASE_URL);
+    console.log("REQUEST URL:", API_BASE_URL + url);
+
+    try {
+      const response = await apiClient.get(url);
+      console.log("SUCCESS RESPONSE:", response);
+      return response;
+    } catch (err) {
+      console.error("ERROR:", err);
+      console.error("ERROR RESPONSE:", err.response);
+      throw err;
+    }
   },
-  create:           (data)           => api.post('/donors', data),
-  update:           (id, data)       => api.put(`/donors/${id}`, data),
-  toggleAvailability: (id)           => api.patch(`/donors/${id}/availability`),
-  delete:           (id)             => api.delete(`/donors/${id}`),
-  uploadPhoto:      (id, formData)   => apiClient.post(`/donors/${id}/photo`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  }),
+
+  create: (data) => api.post('/donors', data),
+
+  update: (id, data) => api.put(`/donors/${id}`, data),
+
+  toggleAvailability: (id) =>
+    api.patch(`/donors/${id}/availability`),
+
+  delete: (id) => api.delete(`/donors/${id}`),
+
+  uploadPhoto: (id, formData) =>
+    apiClient.post(`/donors/${id}/photo`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
 };
 
 // --- Blood Requests ---

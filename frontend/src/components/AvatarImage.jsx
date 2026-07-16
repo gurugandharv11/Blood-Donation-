@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { getInitials } from '../services/utils';
 
-const API_BASE = 'http://localhost:8080';
+// Derive the file-server base from the same VITE_API_URL env var used by
+// api.js, instead of a hardcoded localhost URL that only worked in dev.
+// VITE_API_URL is expected to end in "/api" (e.g. https://backend.onrender.com/api),
+// so strip that suffix to get the origin that serves /uploads/**.
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
 
 /**
  * Reusable avatar component that shows a profile image if available,

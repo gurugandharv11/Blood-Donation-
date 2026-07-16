@@ -57,6 +57,12 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
+                        // CORS preflight requests must always be allowed through,
+                        // otherwise anyRequest().authenticated() below will 401/403
+                        // OPTIONS requests to protected endpoints and the browser
+                        // will report it as a CORS/preflight failure.
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         // Profile image upload requires authentication
                         .requestMatchers("/api/auth/profile-image").authenticated()
 

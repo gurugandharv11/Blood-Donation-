@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // ============ TOKEN MANAGEMENT ============
 export const Auth = {
@@ -132,7 +132,8 @@ export const authApi = {
 export const getProfileImageUrl = (imageUrl) => {
   if (!imageUrl) return null;
   if (imageUrl.startsWith('http')) return imageUrl;
-  return `http://localhost:8080${imageUrl}`;
+  const base = import.meta.env.VITE_API_URL.replace('/api', '');
+  return `${base}${imageUrl}`;
 };
 
 // --- Donors ---
